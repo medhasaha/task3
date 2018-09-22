@@ -55,6 +55,13 @@ public class MyDBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void delete(String id)
+    {
+        SQLiteDatabase db = getWritableDatabase();
+        String query="DELETE FROM " + TABLE_PERSONS + " WHERE " + COLUMN_NAME + "=\"" + id + "\";";
+        db.execSQL(query);
+    }
+
    public Cursor getAllPersons()
    {
        SQLiteDatabase db=this.getWritableDatabase();

@@ -19,11 +19,14 @@ import java.util.ArrayList;
 public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Context context;
     private final ArrayList<persons> list;
+   // MyDBHandler handler=null;
+    String name=null;
 
     public MyAdapter(Context context, ArrayList<persons> list) {
         this.context = context;
         this.list = list;
     }
+
 
     @Override
     public int getItemViewType(int position) {
@@ -60,7 +63,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
            switch(getItemViewType(position)){
                case 0:
                {
@@ -72,8 +75,16 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                    myholder.et_name.setText(p.get_name());
                    myholder.et_role.setText(p.get_role());
                    myholder.et_location.setText(p.get_loc());
-
                    myholder.imgView.setImageBitmap(bitmap);
+                   name=p.get_name();
+                   myholder.imgView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            deleteItem(position);
+                        }
+                    });
+
+
                }
                break;
                case 1:
@@ -87,6 +98,14 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                    myholder1.et_role.setText(p.get_role());
                    myholder1.et_location.setText(p.get_loc());
                    myholder1.imgView.setImageBitmap(bitmap);
+                   name=p.get_name();
+                   myholder1.imgView.setOnClickListener(new View.OnClickListener() {
+                       @Override
+                       public void onClick(View v) {
+                           deleteItem(position);
+                       }
+                   });
+
                }
                break;
                case 2:
@@ -101,6 +120,14 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                    myholder2.et_role.setText(p.get_role());
                    myholder2.et_location.setText(p.get_loc());
                    myholder2.imgView.setImageBitmap(bitmap);
+                   name=p.get_name();
+                   myholder2.imgView.setOnClickListener(new View.OnClickListener() {
+                       @Override
+                       public void onClick(View v) {
+                           deleteItem(position);
+                       }
+                   });
+
                }
                break;
                default:
@@ -124,11 +151,10 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             et_role = (EditText) itemView.findViewById(R.id.et_role);
             et_location = (EditText) itemView.findViewById(R.id.et_location);
             imgView=(ImageView)itemView.findViewById(R.id.imageView1);
-
         }
     }
 
-   class MyViewHolder1 extends RecyclerView.ViewHolder {
+   class MyViewHolder1 extends RecyclerView.ViewHolder  {
         EditText et_name, et_role, et_location;
         ImageView imgView;
 
@@ -139,11 +165,10 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             et_role = (EditText) itemView.findViewById(R.id.et_role);
             et_location = (EditText) itemView.findViewById(R.id.et_location);
             imgView=(ImageView)itemView.findViewById(R.id.imageView1);
-
         }
-    }
+   }
 
-    class MyViewHolder2 extends RecyclerView.ViewHolder {
+    class MyViewHolder2 extends RecyclerView.ViewHolder{
         EditText et_name, et_role, et_location;
         ImageView imgView;
 
@@ -154,8 +179,16 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             et_role = (EditText) itemView.findViewById(R.id.et_role);
             et_location = (EditText) itemView.findViewById(R.id.et_location);
             imgView=(ImageView)itemView.findViewById(R.id.imageView1);
-
         }
+    }
+
+    void deleteItem(int index)
+    {
+        MyDBHandler handler=new MyDBHandler(context,null,null,1);
+        String n=list.get(index).get_name();
+        handler.delete(n);
+        list.remove(index);
+        notifyItemRemoved(index);
     }
 
 }

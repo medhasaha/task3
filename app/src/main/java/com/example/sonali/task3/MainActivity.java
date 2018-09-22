@@ -38,6 +38,9 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -74,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private RecyclerView.LayoutManager layoutManager;
     ImageView imageView;
     Spinner spinner;
+    File imageFile;
 
     LocationManager locationManager;
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -86,8 +90,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     Bitmap bmp = null;
     private static final int GALLERY_REQUEST = 1;
-    //private static final int CAMERA_REQUEST = 2;
-    //private static final int CAMERA_PERMISSION_CODE = 3;
+    private static final int CAMERA_REQUEST = 2;
+    private static final int CAMERA_PERMISSION_CODE = 3;
     private static final int LOCATION_PERMISSION_CODE = 2;
 
     NotificationCompat.Builder notification;
@@ -210,12 +214,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Cursor c=dbHandler.getAllPersons();
                 while(c.moveToNext())
                 {
-                    String name=c.getString(0);
-                    String location=c.getString(1);
-                    String role=c.getString(2);
-                    byte[] img=c.getBlob(3);
-                    persons p=new persons(name,location,role,img);
-                    list.add(p);
+                    try{
+                        String name=c.getString(0);
+                        String location=c.getString(1);
+                        String role=c.getString(2);
+                        byte[] img=c.getBlob(3);
+                        persons p=new persons(name,location,role,img);
+                        list.add(p);
+                    } catch (Exception e){
+                        Log.i("asbdjsabdkjas",e.getMessage()+" is the error message");
+                    }
                 }
 
                 if(!(list.size()<1))
@@ -232,6 +240,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
 
     }
+
+
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -264,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         };
     }
+
 
     public void fetchLocation(){
         Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
@@ -308,20 +319,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
             break;
 
-            /*case CAMERA_PERMISSION_CODE: {
+            case CAMERA_PERMISSION_CODE: {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                         == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "Camera Permission Granted", Toast.LENGTH_LONG).show();
-                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    imageFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "test.jpg");
-                    Uri tempUri = Uri.fromFile(imageFile);
-                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, tempUri);
-                    cameraIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-                    startActivityForResult(cameraIntent, CAMERA_REQUEST);
                 } else {
                     Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_LONG).show();
                 }
-            }*/
+            }
         }
     }
 
@@ -350,37 +355,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
                 break;
 
-            /*case CAMERA_REQUEST:
-                    if (resultCode == Activity.RESULT_OK && data != null) {
-                        Uri selectedImage = data.getData();
-                        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-
-                        Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                        cursor.moveToFirst();
-
-                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                        String picturePath = cursor.getString(columnIndex);
-                        cursor.close();
-
-                        Bitmap bmp = null;
-                        try {
-                            bmp = getBitmapFromUri(selectedImage);
-                        } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                        imageView.setImageBitmap(bmp);
-                    } else {
-                        Toast.makeText(this, "you havent chosen an Image", Toast.LENGTH_SHORT).show();
+            case CAMERA_REQUEST:
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    if (data != null && data.getExtras() != null) {
+                        Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
+                        imageView.setImageBitmap(imageBitmap);
+                        break;
                     }
-                    break;
-                }*/
+                }
         }
-        }
+    }
+
 
    public void getImage()
    {
-       final CharSequence[] options={"Select from Gallery","Cancel"};
+       final CharSequence[] options={"Select from Gallery","Take Photo","Cancel"};
        AlertDialog.Builder builder=new AlertDialog.Builder(MainActivity.this);
        builder.setTitle("Add Photo!");
        builder.setItems(options, new DialogInterface.OnClickListener() {
@@ -393,20 +382,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                    startActivityForResult(Intent.createChooser(gallery_intent,"Select Picture"),GALLERY_REQUEST);
                }
 
-               /*else if(options[item].equals("Take Photo")){
+               else if(options[item].equals("Take Photo")){
 
                        if (ActivityCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.CAMERA)
                                != PackageManager.PERMISSION_GRANTED) {
                            ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
                        } else {
                            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                           imageFile=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"test.jpg");
-                           Uri tempUri=Uri.fromFile(imageFile);
-                           cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,tempUri);
-                           cameraIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY,1);
-                           startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                           if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+                               startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                           }
                        }
-                   }*/
+                   }
                else{
                    Toast.makeText(MainActivity.this, "Please select a photo", Toast.LENGTH_SHORT).show();
                }

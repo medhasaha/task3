@@ -29,6 +29,8 @@ public class persons {
 
     public byte[] get_img(){return _img;}
 
+    public String get_id(){return _id;}
+
     public void setName(String name) {
         this._name = name;
     }

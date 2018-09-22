@@ -96,7 +96,7 @@
         android:layout_below="@+id/btn_address"
         android:layout_marginLeft="17dp"
         android:layout_marginStart="17dp"
-        android:layout_marginTop="23dp"></Spinner>
+        android:layout_marginTop="23dp"/>
 
     <ImageView
         android:id="@+id/imageView"
@@ -130,7 +130,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/myRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="230dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/btn_submit">
